@@ -39,7 +39,6 @@ exports.signup = async(req,res,next)=>{
 exports.login = async(req,res,next)=>{
     const email=req.body.email
     const password=req.body.password
-    console.log(email)
     try {
         const user=await User.findOne({email})
         if(!user){
@@ -59,6 +58,34 @@ exports.login = async(req,res,next)=>{
             { expiresIn: "1h" }
         );
         res.status(200).json({token,userId:user._id.toString()});
+    } catch (error) {
+        Error500(error,next)
+    }
+}
+
+exports.getStatus=async(req,res,next)=>{
+    try {
+        const user=await User.findById(req.userId);
+        if(!user){
+            throw new Error('User not authenticated').statusCode=201
+        }
+        else{
+            res.status(200).json({status:user.status})
+        }
+    } catch (error) {
+        Error500(error,next)
+    }
+}
+
+exports.putStatus=async(req,res,next)=>{
+    const status=req.body.status;
+    try {
+        const user=await User.findById(req.userId);
+        if(!user){
+            throw new Error('User not authenticated').statusCode=201
+        }
+        user.status=status;
+        res.status(200).json({ result });
     } catch (error) {
         Error500(error,next)
     }
